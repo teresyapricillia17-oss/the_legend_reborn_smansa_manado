@@ -1,0 +1,2 @@
+# the_legend_reborn_smansa_manado
+KAWANUA360
