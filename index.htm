@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KAWANUA360 - Ragam Sulawesi Utara</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --primary: #f43f5e;
+            --accent: #38bdf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .screen {
+            display: none !important;
+            min-height: 100vh;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .screen.active {
+            display: block !important;
+            opacity: 1;
+        }
+
+        /* LAYAR LOGIN DENGAN GAMBAR PENUH */
+        #auth-screen.active {
+            display: flex !important;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.7)), url('images/login-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        #main-app.active {
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 0.9rem;
+            background: var(--primary) !important;
+            color: white !important;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn-primary:hover {
+            background: #e11d48 !important;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .loading-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .spinner-container {
+            text-align: center;
+        }
+
+        .spinner-container p {
+            margin-top: 1.2rem;
+            font-weight: 600;
+            color: var(--text-main);
+            letter-spacing: 0.5px;
+            font-size: 1rem;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--primary);
+            border-right-color: var(--accent);
+            border-radius: 50%;
+            margin: 0 auto;
+            animation: spin 1s linear infinite;
+        }
+
+        .auth-card {
+            background: rgba(30, 41, 59, 0.75) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 2.5rem;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .auth-header h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .auth-header h2 span {
+            color: var(--primary);
+        }
+
+        .auth-header p {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .input-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+            color: #cbd5e1;
+            font-weight: 600;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #475569;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.3);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 5%;
+            background: var(--bg-card);
+            border-bottom: 1px solid #334155;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .app-header .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .app-header .logo span {
+            color: var(--primary);
+        }
+
+        .header-right-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-header-info {
+            padding: 0.5rem 1rem;
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: var(--accent);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-header-info:hover {
+            border-color: var(--accent);
+            background: #1e293b;
+        }
+
+        .btn-logout {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .top-hero-container {
+            padding: 1rem 5% 0 5%;
+        }
+
+        .hero-banner {
+            background: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.85)), url('images/main-banner.jpg');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            padding: 4rem 2.5rem;
+            border-radius: 20px;
+            border-left: 6px solid var(--primary);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+            transition: background-image 0.5s ease-in-out;
+        }
+
+        .hero-text h3 {
+            font-size: 2rem;
+            margin-bottom: 0.8rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-text p {
+            color: #f1f5f9;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            max-width: 650px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            padding: 10px;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: var(--bg-card);
+            border: 1px solid #334155;
+            padding: 2rem;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.open .modal-box {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 0.8rem;
+        }
+
+        .modal-header h3 {
+            font-size: 1.3rem;
+            color: var(--text-main);
+        }
+
+        .btn-close-modal {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .btn-close-modal:hover {
+            color: var(--danger);
+        }
+
+        .modal-body {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #cbd5e1;
+        }
+
+        .modal-body ul {
+            margin-left: 1.2rem;
+            margin-top: 0.5rem;
+        }
+
+        .modal-body strong {
+            color: var(--accent);
+        }
+
+        .detail-img-box {
+            width: 100%;
+            height: 240px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 1.2rem;
+            border: 1px solid #334155;
+        }
+
+        .detail-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .detail-info-badge {
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .dev-team-banner {
+            width: 100%;
+            height: 180px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            border: 1px solid #334155;
+        }
+
+        .dev-team-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .dev-members-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 1rem;
+        }
+
+        .dev-member-card {
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #334155;
+        }
+
+        .dev-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 0 auto 10px auto;
+            border: 2px solid var(--accent);
+        }
+
+        .dev-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .dev-member-card h5 {
+            font-size: 0.85rem;
+            color: white;
+            margin-bottom: 2px;
+        }
+
+        .dev-member-card span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .search-container {
+            padding: 1rem 5% 0.5rem 5%;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            background: var(--bg-card);
+            padding: 8px;
+            border-radius: 16px;
+            border: 1px solid #334155;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box input {
+            flex: 1;
+            min-width: 150px;
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .search-box input:focus {
+            outline: none;
+        }
+
+        .search-box select {
+            background: #0f172a;
+            color: white;
+            border: 1px solid #334155;
+            padding: 0.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .btn-search-trigger {
+            background: var(--accent);
+            color: #0f172a;
+            border: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-search-trigger:hover {
+            background: #7dd3fc;
+            transform: scale(1.02);
+        }
+
+        .tab-navigation {
+            display: flex;
+            gap: 10px;
+            padding: 1rem 5%;
+            overflow-x: auto;
+            scrollbar-width: none; /* Menyembunyikan scrollbar di Firefox */
+        }
+
+        .tab-navigation::-webkit-scrollbar {
+            display: none; /* Menyembunyikan scrollbar di Chrome/Safari */
+        }
+
+        .tab-btn {
+            padding: 0.6rem 1.2rem;
+            background: #1e293b;
+            border: none;
+            color: var(--text-muted);
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            white-space: nowrap; /* Menjaga teks tombol agar tidak terlipat */
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: #0f172a;
+        }
+
+        .content-area {
+            padding: 0 5% 3rem 5%;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            margin-bottom: 1.2rem;
+            position: relative;
+            padding-left: 12px;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 20%;
+            bottom: 20%;
+            width: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #334155;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 20px -5px rgba(56, 189, 248, 0.2);
+        }
+
+        .card-img-container {
+            height: 160px;
+            background: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-body {
+            padding: 1.2rem;
+        }
+
+        .card-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            color: var(--accent);
+            background: rgba(56, 189, 248, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+            color: var(--text-main);
+        }
+
+        .card-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .games-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .game-container {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 24px;
+            border: 1px solid #334155;
+        }
+
+        .game-header h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.3rem;
+            background: linear-gradient(to right, var(--text-main), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .game-header p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .divider {
+            border: 0;
+            height: 1px;
+            background: #334155;
+            margin: 1.2rem 0;
+        }
+
+        .game-visual-box {
+            background: #0f172a;
+            height: 220px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            border: 1px dashed #334155;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .game-visual-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #question-text,
+        .scramble-desc {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #f1f5f9;
+        }
+
+        .option-btn {
+            display: block;
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            background: #0f172a;
+            border: 2px solid #1e293b;
+            color: #cbd5e1;
+            border-radius: 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover:not([disabled]) {
+            border-color: var(--accent);
+            background: #1e293b;
+        }
+
+        .option-btn.correct-feedback {
+            background: rgba(16, 185, 129, 0.2) !important;
+            border-color: var(--success) !important;
+            color: #34d399 !important;
+        }
+
+        .option-btn.wrong-feedback {
+            background: rgba(239, 68, 68, 0.2) !important;
+            border-color: var(--danger) !important;
+            color: #f87171 !important;
+        }
+
+        .game-nav-container {
+            display: flex;
+            gap: 12px;
+            margin-top: 1.5rem;
+        }
+
+        .btn-nav-game {
+            flex: 1;
+            padding: 0.8rem;
+            background: #334155;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-nav-game:disabled {
+            opacity: 0.2;
+            cursor: not-allowed;
+        }
+
+        .scramble-word-display {
+            font-size: 2.2rem;
+            letter-spacing: 8px;
+            font-weight: 800;
+            color: var(--accent);
+            text-align: center;
+            margin: 1.2rem 0;
+        }
+
+        .scramble-input {
+            width: 100%;
+            padding: 0.9rem;
+            background: #0f172a;
+            border: 2px solid #334155;
+            color: white;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .scramble-correction-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.8rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .score-card {
+            padding: 1.5rem;
+            background: radial-gradient(circle at center, #1e1b4b, #0f172a);
+            border-radius: 20px;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .score-badge {
+            display: inline-block;
+            padding: 0.3rem 1.5rem;
+            background: var(--accent);
+            color: #0f172a;
+            font-size: 1.5rem;
+            font-weight: 800;
+            border-radius: 50px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ----------------------------------------- */
+        /* CSS ATURAN RESPONSIVITAS KHUSUS LAYAR HP   */
+        /* ----------------------------------------- */
+        @media (max-width: 768px) {
+            .app-header {
+                justify-content: center;
+                text-align: center;
+                padding: 1rem;
+            }
+
+            .header-right-wrapper {
+                width: 100%;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .btn-header-info, .btn-logout {
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+            }
+
+            .hero-banner {
+                padding: 2.5rem 1.5rem;
+            }
+
+            .hero-text h3 {
+                font-size: 1.5rem;
+            }
+
+            .hero-text p {
+                font-size: 0.9rem;
+            }
+
+            .search-box {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 12px;
+            }
+
+            .search-box input, .search-box select, .btn-search-trigger {
+                width: 100%;
+            }
+
+            .grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
+                gap: 15px;
+            }
+
+            .game-container {
+                padding: 1.2rem;
+            }
+
+            .game-visual-box {
+                height: 160px;
+            }
+
+            .scramble-word-display {
+                font-size: 1.8rem;
+                letter-spacing: 4px;
+            }
+
+            .dev-members-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dev-team-banner {
+                height: 130px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="auth-screen" class="screen active">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2>KAWANUA<span>360</span></h2>
+                <p>Simfoni Digital Sulawesi Utara</p>
+            </div>
+            <form id="login-form">
+                <div class="input-group">
+                    <label>Nama Pengguna</label>
+                    <input type="text" id="username" placeholder="Masukkan nama Anda..." required>
+                </div>
+                <div class="input-group">
+                    <label>Alamat Email</label>
+                    <input type="email" id="email" placeholder="nama@email.com" required>
+                </div>
+                <button type="submit" id="login-btn" class="btn-primary">Masuk Aplikasi</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="loading-screen" class="loading-overlay">
+        <div class="spinner-container">
+            <div class="loading-spinner"></div>
+            <p>Memuat Keindahan Sulut...</p>
+        </div>
+    </div>
+
+    <div id="main-app" class="screen">
+        <header class="app-header">
+            <div class="logo">KAWANUA<span>360</span></div>
+            <div class="header-right-wrapper">
+                <button id="btn-modal-dev" class="btn-header-info">Tim Pengembang</button>
+                <button id="btn-modal-app" class="btn-header-info">Info Aplikasi</button>
+                <button id="btn-logout" class="btn-logout">Keluar</button>
+            </div>
+        </header>
+
+        <div class="top-hero-container">
+            <div class="hero-banner" id="hero-banner-bg">
+                <div class="hero-text">
+                    <h3 id="hero-title">Selamat Datang di KAWANUA360!</h3>
+                    <p id="hero-subtitle">Jelajahi keindahan bumi Nyiur Melambai dalam satu genggaman digital.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="main-search" placeholder="Cari Bunaken, Tinutuan...">
+                <select id="filter-category">
+                    <option value="all">Semua Kategori</option>
+                    <option value="wisata">Tempat Wisata</option>
+                    <option value="kuliner">Kuliner Khas</option>
+                </select>
+                <button id="btn-search" class="btn-search-trigger">Cari</button>
+            </div>
+        </div>
+
+        <nav class="tab-navigation">
+            <button class="tab-btn active" data-target="beranda">Beranda</button>
+            <button class="tab-btn" data-target="wisata">Wisata</button>
+            <button class="tab-btn" data-target="kuliner">Kuliner</button>
+            <button class="tab-btn" data-target="games">Games</button>
+        </nav>
+
+        <main class="content-area">
+            <section id="sec-beranda" class="tab-content active">
+                <h4 class="section-title">Rekomendasi Utama</h4>
+                <div class="grid-container" id="featured-grid"></div>
+            </section>
+
+            <section id="sec-wisata" class="tab-content">
+                <h4 class="section-title">20 Destinasi Wisata Pilihan Sulawesi Utara</h4>
+                <div class="grid-container" id="wisata-grid"></div>
+            </section>
+
+            <section id="sec-kuliner" class="tab-content">
+                <h4 class="section-title">20 Kuliner Otentik Utama Sulut</h4>
+                <div class="grid-container" id="kuliner-grid"></div>
+            </section>
+
+            <section id="sec-games" class="tab-content">
+                <div class="games-layout">
+                    <div class="game-container" id="quiz-match-game">
+                        <div class="game-header">
+                            <h3>Game 1: Kawanua Image Match</h3>
+                            <p>Pilih jawaban! Sistem otomatis mengunci skor dan memberi warna kebenaran jawaban.</p>
+                        </div>
+                        <hr class="divider">
+                        <div id="game-box">
+                            <div id="game-visual" class="game-visual-box">
+                                <img id="img-game-visual" src="images/game-cover.jpg" alt="Visual Soal">
+                            </div>
+                            <div id="question-text">Klik tombol di bawah untuk mulai mencocokkan!</div>
+                            <div id="options-container"></div>
+                            <div id="quiz-nav" class="game-nav-container hidden">
+                                <button id="btn-quiz-back" class="btn-nav-game">Kembali</button>
+                                <button id="btn-quiz-next" class="btn-nav-game">Lanjut</button>
+                            </div>
+                            <button id="btn-action-game" class="btn-primary" style="margin-top: 15px;">Mulai Game Matching</button>
+                            <div id="game-score" class="score-card hidden">
+                                <h4>Permainan Selesai!</h4>
+                                <p>Total Skor Anda</p>
+                                <div class="score-badge"><span id="score-val">0</span> / 2</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="game-container" id="scramble-game">
+                        <div class="game-header">
+                            <h3>Game 2: Susun Kata Kebudayaan</h3>
+                            <p>Ketik jawaban, lalu klik "Kunci Jawaban" untuk melihat status benar/salah.</p>
+                        </div>
+                        <hr class="divider">
+                        <div id="scramble-box">
+                            <div class="scramble-desc" id="scramble-hint">Tekan tombol mulai untuk menguji ketangkasan bahasamu!</div>
+                            <div class="scramble-word-display" id="scramble-word">READY</div>
+                            <input type="text" id="scramble-input-field" class="scramble-input hidden" placeholder="KETIK JAWABAN DISINI...">
+                            <button id="btn-scramble-submit" class="btn-primary hidden" style="margin-bottom: 10px; background: var(--accent) !important; color:#0f172a !important;">Kunci Jawaban</button>
+                            <div id="scramble-correction" class="scramble-correction-box hidden"></div>
+                            <div id="scramble-nav" class="game-nav-container hidden">
+                                <button id="btn-scramble-back" class="btn-nav-game">Kembali</button>
+                                <button id="btn-scramble-next" class="btn-nav-game">Lanjut</button>
+                            </div>
+                            <button id="btn-action-scramble" class="btn-primary" style="margin-top: 15px;">Mulai Susun Kata</button>
+                            <div id="scramble-score" class="score-card hidden">
+                                <h4>Hasil Akhir Game Scramble!</h4>
+                                <p>Skor Anda</p>
+                                <div class="score-badge"><span id="scramble-score-val">0</span> / 100 Points</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="modal-detail-focus" class="modal-overlay">
+        <div class="modal-box" style="max-width: 550px;">
+            <div class="modal-header">
+                <h3 id="detail-title">Nama Tempat</h3>
+                <button class="btn-close-modal" onclick="closeModal('modal-detail-focus')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-img-box">
+                    <img id="detail-image" src="" alt="Fokus Konten">
+                </div>
+                <div id="detail-badge" class="detail-info-badge">Kategori</div>
+                <p id="detail-description" style="color: #f1f5f9; font-size: 1rem; line-height: 1.6;"></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-developer" class="modal-overlay">
+        <div class="modal-box" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Tim Pengembang Aplikasi</h3>
+                <button class="btn-close-modal" onclick="closeModal('modal-developer')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="dev-team-banner">
+                    <img src="images/foto_tim_bersama.jpg" alt="THE LEGEND REBORN SMANSA MANADO" onerror="this.src='https://placehold.co/600x400/1e293b/f8fafc?text=THE+LEGEND+REBORN'">
+                </div>
+                <p>Aplikasi ini dirancang dan dikembangkan untuk mengikuti kompetisi digital :</p>
+                <br>
+                <p><strong> Institusi:</strong> SMAN 1 Manado (SMANSA)</p>
+                <p><strong> Nama Tim :</strong> THE LEGEND REBORN SMANSA MANADO</p>
+                <p><strong> Guru Pembimbing:</strong> Nova Ester Terok</p>
+                <br>
+                <p><strong>Struktur Anggota Tim:</strong></p>
+                <div class="dev-members-grid">
+                    <div class="dev-member-card">
+                        <div class="dev-avatar"><img src="images/foto_pricillia.jpg" alt="Pricillia" onerror="this.src='https://placehold.co/150x150/1e293b/f8fafc?text=P'"></div>
+                        <h5>Pricillia Pontoh</h5>
+                        <span>Ketua Tim</span>
+                    </div>
+                    <div class="dev-member-card">
+                        <div class="dev-avatar"><img src="images/foto_zefanya.jpg" alt="Zefanya" onerror="this.src='https://placehold.co/150x150/1e293b/f8fafc?text=Z'"></div>
+                        <h5>Zefanya Sumarandak</h5>
+                        <span>Anggota 1</span>
+                    </div>
+                    <div class="dev-member-card">
+                        <div class="dev-avatar"><img src="images/foto_belicia.jpg" alt="Belicia" onerror="this.src='https://placehold.co/150x150/1e293b/f8fafc?text=B'"></div>
+                        <h5>Belicia Wawointana</h5>
+                        <span>Anggota 2</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-app-info" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>Tentang KAWANUA360</h3>
+                <button class="btn-close-modal" onclick="closeModal('modal-app-info')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p><strong>KAWANUA360</strong> adalah Aplikasi Media Pembelajaran Interaktif berbasis web yang memadukan teknologi Informatika dengan kearifan lokal budaya Sulawesi Utara.</p>
+                <br>
+                <p><strong>Fitur Utama :</strong></p>
+                <ul>
+                    <li>Wisata Sulawesi Utara.</li>
+                    <li>Kuliner Sulawesi Utara.</li>
+                    <li>Game untuk pemahaman .</li>
+                    <li>Masih belum sempurna dan masih boleh dikembangkan.</li>
+                </ul>
+                <br>
+                <p><strong>Versi Sistem:</strong> v2.1.0 (Audio SFX & BGM System Added)</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // AUDIO SISTEM GLOBAL
+        const bgmUtama = new Audio('audio/lagu_daerah_sulut.mp3');
+        bgmUtama.loop = true;
+        bgmUtama.volume = 0.4;
+
+        const sndClick = new Audio('audio/click.mp3');
+        const sndCorrect = new Audio('audio/correct.mp3');
+        const sndWrong = new Audio('audio/wrong.mp3');
+        const sndVictory = new Audio('audio/victory.mp3');
+
+        function playClickSound() {
+            sndClick.currentTime = 0;
+            sndClick.play().catch(e => console.log("Audio play blocked"));
+        }
+
+        // DATABASE WISATA SULUT
+        const dataWisata = [
+            { id: "bunaken", n: "Taman Nasional Bunaken", k: "Manado", d: "Surga bawah laut dunia dengan keindahan terumbu karang megah." },
+            { id: "linow", n: "Danau Linow", k: "Tomohon", d: "Danau belerang unik yang dapat berubah warna menjadi tiga rona berbeda." },
+            { id: "tombatu", n: "Danau Sebedi Tombatu", k: "Minahasa Tenggara", d: "Pesona danau alami yang tenang dikelilingi perbukitan hijau asri." },
+            { id: "mahawu", n: "Gunung Mahawu", k: "Tomohon", d: "Jalur trekking ringan menuju pemandangan kawah aktif yang menakjubkan." },
+            { id: "lokon", n: "Gunung Lokon", k: "Tomohon", d: "Gunung api megah penopang panorama alam kota bunga Tomohon." },
+            { id: "tumbak", n: "Pulau Tumbak", k: "Minahasa Tenggara", d: "Kawasan pulau eksotis dengan keindahan terumbu karang karpet yang langka." },
+            { id: "siladen", n: "Pulau Siladen", k: "Manado", d: "Pulau tenang dengan pasir putih halus and air laut sejernih kristal." },
+            { id: "lembeh", n: "Selat Lembeh", k: "Bitung", d: "Destinasi selam utama dunia untuk kategori 'muck diving' atau biota unik bawah laut." },
+            { id: "tangkoko", n: "Cagar Alam Tangkoko", k: "Bitung", d: "Rumah alami bagi satwa endemik Tarsius Spectrum dan monyet hitam Macaca Nigra." },
+            { id: "waruga", n: "Taman Purbakala Waruga", k: "Minahasa Utara", d: "Situs cagar budaya berupa makam batu leluhur khas suku Minahasa kuno." },
+            { id: "paal", n: "Pantai Paal", k: "Minahasa Utara", d: "Pantai pasir putih dengan ombak bergulung eksotis menghadap samudra terbuka." },
+            { id: "pulisan", n: "Pantai Pulisan", k: "Minahasa Utara", d: "Perpaduan tebing batu eksotis, padang sabana luas, dan teluk berair tenang." },
+            { id: "likupang", n: "Kawasan Likupang", k: "Minahasa Utara", d: "Destinasi Pariwisata Super Prioritas (DPSP) nasional dengan keindahan pesisir tropis." },
+            { id: "bukit_kasih", n: "Bukit Kasih Kanonang", k: "Minahasa", d: "Monumen belerang simbol toleransi dan keharmonisan lima agama di Sulut." },
+            { id: "tondano", n: "Danau Tondano", k: "Minahasa", d: "Danau vulkanik terluas di Sulut, pusat budidaya ikan tawar dan kuliner pesisir." },
+            { id: "batu_dinding", n: "Batu Dinding Kilo Tiga", k: "Minahasa Selatan", d: "Tebing batu alami vertikal menjulang tinggi, surga bagi pecinta panjat tebing." },
+            { id: "moat", n: "Danau Moat", k: "Bolaang Mongondow Timur", d: "Danau berhawa sejuk di dataran tinggi yang dikelilingi perkebunan holtikultura." },
+            { id: "atoga", n: "Air Terjun Atoga", k: "Bolaang Mongondow Timur", d: "Aliran air terjun berundak alami di tengah hutan tropis yang rindang." },
+            { id: "batu_pinagut", n: "Pantai Batu Pinagut", k: "Bolaang Mongondow Utara", d: "Kawasan wisata pantai sejarah berpasir landai dengan panorama sunset memukau." },
+            { id: "jembatan_soekarno", n: "Jembatan Soekarno", k: "Manado", d: "Landmark jembatan megah ikonik kota Manado dengan pemandangan langsung ke Pulau Bunaken." }
+        ];
+
+        // DATABASE KULINER SULUT
+        const dataKuliner = [
+            { id: "tinutuan", n: "Tinutuan (Bubur Manado)", k: "Makanan Utama", d: "Bubur sehat kaya serat campuran aneka sayuran segar, labu, dan jagung." },
+            { id: "klappertaart", n: "Klappertaart", k: "Kue Khas", d: "Kue adonan kelapa muda legit akulturasi budaya kolonial Belanda." },
+            { id: "paniki", n: "Daging Paniki", k: "Makanan Utama", d: "Kuliner ekstrem daging kelelawar olahan bumbu kelapa kuning pedas khas Minahasa." },
+            { id: "rw", n: "Rantai Waya (RW)", k: "Makanan Utama", d: "Olahan daging dengan racikan rempah super pedas, daun lemon, dan serai." },
+            { id: "woku_belanga", n: "Ayam Woku Belanga", k: "Makanan Utama", d: "Ayam masak bumbu woku kaya daun rempah aromatik dengan kuah kental kekuningan." },
+            { id: "ikan_bakar_dabu", n: "Ikan Bakar Dabu-Dabu", k: "Makanan Utama", d: "Ikan laut segar bakar disajikan bersama siraman sambal dabu-dabu lilin mentah." },
+            { id: "mie_cakalang", n: "Mie Cakalang", k: "Makanan Utama", d: "Mie kuah bening kaldu ikan gurih bertabur abon ikan cakalang asap melimpah." },
+            { id: "brenebon", n: "Sup Brenebon", k: "Makanan Utama", d: "Sup iga sapi berkuah kental kacang merah dengan aroma pala yang kuat." },
+            { id: "nasi_kuning", n: "Nasi Kuning Saro", k: "Makanan Utama", d: "Nasi kuning wangi dibungkus daun woka khas, disajikan dengan lauk ikan cakalang pedas." },
+            { id: "ragey", n: "Ragey", k: "Makanan Utama", d: "Sate daging potongan besar dengan bumbu tajam khas yang dibakar empuk." },
+            { id: "gohu", n: "Gohu Bakasang", k: "Camilan", d: "Rujak pepaya muda parut berkuah cuka, jahe, cabai, dan fermentasi perut ikan." },
+            { id: "panada", n: "Kue Panada", k: "Camilan", d: "Kue goreng mirip pastel dengan isian ikan cakalang pampis berbumbu pedas." },
+            { id: "lalampa", n: "Lalampa", k: "Camilan", d: "Ketan bakar berbungkus daun pisang dengan isian daging ikan laut gurih." },
+            { id: "biapong", n: "Biapong Ba/Unti", k: "Camilan", d: "Roti kukus lembut khas dengan pilihan isian daging gurih atau unti kelapa manis." },
+            { id: "apang_co", n: "Apang Co", k: "Camilan", d: "Kue kukus tepung beras gula merah wangi dengan taburan parutan kelapa muda." },
+            { id: "cucur", n: "Kue Cucur Manado", k: "Camilan", d: "Kue tradisional berbahan gula aren dengan pinggiran renyah berserat indah." },
+            { id: "pisang_goroho", n: "Pisang Goroho Stik", k: "Camilan", d: "Pisang goroho iris tipis yang digoreng garing, nikmat dicocol sambal roa." },
+            { id: "sambal_roa", n: "Sambal Roa", k: "Pelengkap", d: "Sambal legendaris hasil ulekan cabai rawit dengan hancuran ikan roa asap kering." },
+            { id: "saut", n: "Sayur Saut", k: "Makanan Utama", d: "Kuliner tradisional dari olahan bagian dalam batang pisang muda berserat rempah." },
+            { id: "pangi", n: "Sayur Pangi", k: "Makanan Utama", d: "Irisan halus daun pangi yang dimasak di dalam bambu bersama rempah Minahasa." }
+        ];
+
+        const gameQuestions = [
+            {
+                q: "Mana yang merupakan kawasan konservasi terumbu karang dunia?",
+                a: ["Taman Nasional Bunaken", "Danau Linow"],
+                c: 0,
+                image: "images/game-cover.jpg"
+            },
+            {
+                q: "Danau di Tomohon yang warnanya bisa berubah-ubah adalah...",
+                a: ["Danau Linow", "Taman Nasional Bunaken"],
+                c: 0,
+                image: "images/game-cover.jpg"
+            }
+        ];
+
+        const scrambleData = [
+            { word: "TINUTUAN", hint: "Bubur khas Manado yang kaya akan sayur-sayuran" },
+            { word: "BUNAKEN", hint: "Taman nasional bawah laut ikonik di Sulawesi Utara" },
+            { word: "LIKUPANG", hint: "Destinasi wisata super prioritas nasional di Minahasa Utara" }
+        ];
+
+        let currentUser = null;
+        let quizIndex = 0;
+        let quizScore = 0;
+        let quizAnswers = new Array(gameQuestions.length).fill(null);
+        let scrambleIndex = 0;
+        let scrambleScore = 0;
+
+        const authScreen = document.getElementById('auth-screen');
+        const loadingScreen = document.getElementById('loading-screen');
+        const mainApp = document.getElementById('main-app');
+        const featuredGrid = document.getElementById('featured-grid');
+        const wisataGrid = document.getElementById('wisata-grid');
+        const kulinerGrid = document.getElementById('kuliner-grid');
+
+        // FORM LOGIN EVENT
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            currentUser = document.getElementById('username').value;
+
+            bgmUtama.play().catch(err => console.log("Audio play blocked"));
+            playClickSound();
+
+            authScreen.classList.remove('active');
+            loadingScreen.classList.add('visible');
+
+            setTimeout(() => {
+                loadingScreen.classList.remove('visible');
+                mainApp.classList.add('active');
+                initApp();
+            }, 1500);
+        });
+
+        document.getElementById('btn-logout').addEventListener('click', function() {
+            playClickSound();
+            bgmUtama.pause();
+            location.reload();
+        });
+
+        function initApp() {
+            renderGrid(dataWisata.slice(0, 4).concat(dataKuliner.slice(0, 4)), featuredGrid);
+            renderGrid(dataWisata, wisataGrid);
+            renderGrid(dataKuliner, kulinerGrid);
+        }
+
+        function renderGrid(data, targetContainer) {
+            targetContainer.innerHTML = '';
+            data.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-img-container">
+                        <img src="images/${item.id}.jpg" alt="${item.n}" onerror="this.src='https://placehold.co/600x400/1e293b/f8fafc?text=${item.id}'">
+                    </div>
+                    <div class="card-body">
+                        <span class="card-tag">${item.k}</span>
+                        <h4 class="card-title">${item.n}</h4>
+                        <p class="card-desc">${item.d}</p>
+                    </div>
+                `;
+                
+                card.addEventListener('click', () => {
+                    showContentDetail(item);
+                });
+
+                targetContainer.appendChild(card);
+            });
+        }
+
+        function showContentDetail(item) {
+            playClickSound();
+            
+            document.getElementById('detail-title').innerText = item.n;
+            document.getElementById('detail-badge').innerText = item.k;
+            document.getElementById('detail-description').innerText = item.d;
+            
+            const imgEl = document.getElementById('detail-image');
+            imgEl.src = `images/${item.id}.jpg`;
+            imgEl.onerror = function() {
+                this.src = `https://placehold.co/600x400/1e293b/f8fafc?text=${item.n}`;
+            };
+            
+            openModal('modal-detail-focus');
+        }
+
+        // TAB NAVIGATION
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                playClickSound();
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                this.classList.add('active');
+                const target = this.dataset.target;
+                document.getElementById(`sec-${target}`).classList.add('active');
+
+                const heroTitle = document.getElementById('hero-title');
+                const heroSubtitle = document.getElementById('hero-subtitle');
+                const heroBanner = document.getElementById('hero-banner-bg');
+
+                if (target === 'beranda') {
+                    heroTitle.innerText = "Selamat Datang di KAWANUA360!";
+                    heroSubtitle.innerText = "Jelajahi keindahan bumi Nyiur Melambai dalam satu genggaman digital.";
+                    heroBanner.style.backgroundImage = "linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.85)), url('images/main-banner.jpg')";
+                } 
+                else if (target === 'wisata') {
+                    heroTitle.innerText = "Mari Jo Pasiar!";
+                    heroSubtitle.innerText = "Temukan pesona alam, sejarah, dan surga tersembunyi di Sulawesi Utara.";
+                    heroBanner.style.backgroundImage = "linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.85)), url('images/main-banner-wisata.jpg')";
+                } 
+                else if (target === 'kuliner') {
+                    heroTitle.innerText = "Kuliner Kawanua";
+                    heroSubtitle.innerText = "Manjakan lidah Anda dengan cita rasa otentik, pedas, dan legendaris khas Sulut.";
+                    heroBanner.style.backgroundImage = "linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.85)), url('images/main-banner-kuliner.jpg')";
+                } 
+                else if (target === 'games') {
+                    heroTitle.innerText = "Games";
+                    heroSubtitle.innerText = "Uji wawasan kebudayaan dan ketangkasan bahasamu lewat tantangan interaktif.";
+                    heroBanner.style.backgroundImage = "linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.85)), url('images/game-banner.jpg')";
+                }
+            });
+        });
+
+        document.getElementById('btn-search').addEventListener('click', () => {
+            playClickSound();
+            executeSearch();
+        });
+
+        function executeSearch() {
+            const query = document.getElementById('main-search').value.toLowerCase().trim();
+            const category = document.getElementById('filter-category').value;
+            let filteredWisata = dataWisata.filter(w => w.n.toLowerCase().includes(query) || w.d.toLowerCase().includes(query));
+            let filteredKuliner = dataKuliner.filter(k => k.n.toLowerCase().includes(query) || k.d.toLowerCase().includes(query));
+
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelector('[data-target="beranda"]').classList.add('active');
+            document.getElementById('sec-beranda').classList.add('active');
+
+            document.getElementById('hero-title').innerText = "Selamat Datang di KAWANUA360!";
+            document.getElementById('hero-subtitle').innerText = "Jelajahi keindahan bumi Nyiur Melambai dalam satu genggaman digital.";
+            document.getElementById('hero-banner-bg').style.backgroundImage = "linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.85)), url('images/main-banner.jpg')";
+
+            if (category === 'wisata') renderGrid(filteredWisata, featuredGrid);
+            else if (category === 'kuliner') renderGrid(filteredKuliner, featuredGrid);
+            else renderGrid(filteredWisata.concat(filteredKuliner), featuredGrid);
+        }
+
+        document.getElementById('btn-modal-dev').addEventListener('click', () => {
+            playClickSound();
+            openModal('modal-developer');
+        });
+        document.getElementById('btn-modal-app').addEventListener('click', () => {
+            playClickSound();
+            openModal('modal-app-info');
+        });
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('open');
+        }
+
+        function closeModal(id) {
+            playClickSound();
+            document.getElementById(id).classList.remove('open');
+        }
+
+        // GAME 1 LOGIC
+        const btnActionGame = document.getElementById('btn-action-game');
+        btnActionGame.addEventListener('click', () => {
+            playClickSound();
+            if(btnActionGame.innerText === "Kembali Ke Beranda Game") {
+                resetToGameHome(1);
+            } else {
+                startQuizGame();
+            }
+        });
+
+        function resetToGameHome(gameNum) {
+            if(gameNum === 1) {
+                document.getElementById('img-game-visual').src = "images/game-cover.jpg";
+                document.getElementById('question-text').innerText = "Klik tombol di bawah untuk mulai mencocokkan!";
+                document.getElementById('options-container').innerHTML = '';
+                document.getElementById('quiz-nav').classList.add('hidden');
+                document.getElementById('game-score').classList.add('hidden');
+                btnActionGame.innerText = "Mulai Game Matching";
+            } else {
+                document.getElementById('scramble-hint').innerText = "Tekan tombol mulai untuk menguji ketangkasan bahasamu!";
+                document.getElementById('scramble-word').innerText = "READY";
+                scrambleInputField.classList.add('hidden');
+                btnScrambleSubmit.classList.add('hidden');
+                scrambleCorrection.classList.add('hidden');
+                document.getElementById('scramble-nav').classList.add('hidden');
+                document.getElementById('scramble-score').classList.add('hidden');
+                btnActionScramble.innerText = "Mulai Susun Kata";
+            }
+        }
+
+        function startQuizGame() {
+            quizIndex = 0;
+            quizScore = 0;
+            quizAnswers.fill(null);
+            btnActionGame.classList.add('hidden');
+            document.getElementById('quiz-nav').classList.remove('hidden');
+            document.getElementById('game-score').classList.add('hidden');
+            loadQuizQuestion();
+        }
+
+        function loadQuizQuestion() {
+            const qData = gameQuestions[quizIndex];
+            document.getElementById('img-game-visual').src = qData.image;
+            document.getElementById('question-text').innerText = `Pertanyaan ${quizIndex + 1}: ${qData.q}`;
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            qData.a.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                if (quizAnswers[quizIndex] !== null) {
+                    btn.disabled = true;
+                    if (idx === qData.c) btn.classList.add('correct-feedback');
+                    if (quizAnswers[quizIndex] === idx && idx !== qData.c) btn.classList.add('wrong-feedback');
+                } else {
+                    btn.addEventListener('click', () => selectQuizAnswer(idx));
+                }
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('btn-quiz-back').disabled = quizIndex === 0;
+            document.getElementById('btn-quiz-next').innerText = quizIndex === gameQuestions.length - 1 ? "Selesai" : "Lanjut";
+        }
+
+        function selectQuizAnswer(selectedIdx) {
+            quizAnswers[quizIndex] = selectedIdx;
+            const qData = gameQuestions[quizIndex];
+
+            if (selectedIdx === qData.c) {
+                quizScore++;
+                sndCorrect.currentTime = 0;
+                sndCorrect.play().catch(e => {});
+            } else {
+                sndWrong.currentTime = 0;
+                sndWrong.play().catch(e => {});
+            }
+
+            document.querySelectorAll('.option-btn').forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === qData.c) btn.classList.add('correct-feedback');
+                if (selectedIdx === idx && idx !== qData.c) btn.classList.add('wrong-feedback');
+            });
+        }
+
+        document.getElementById('btn-quiz-back').addEventListener('click', () => {
+            playClickSound();
+            if (quizIndex > 0) {
+                quizIndex--;
+                loadQuizQuestion();
+            }
+        });
+        
+        document.getElementById('btn-quiz-next').addEventListener('click', () => {
+            playClickSound();
+            if (quizIndex < gameQuestions.length - 1) {
+                quizIndex++;
+                loadQuizQuestion();
+            } else {
+                sndVictory.currentTime = 0;
+                sndVictory.play().catch(e => {});
+                document.getElementById('options-container').innerHTML = '';
+                document.getElementById('quiz-nav').classList.add('hidden');
+                document.getElementById('game-score').classList.remove('hidden');
+                document.getElementById('score-val').innerText = quizScore;
+                
+                btnActionGame.innerText = "Kembali Ke Beranda Game";
+                btnActionGame.classList.remove('hidden');
+            }
+        });
+
+        // GAME 2 LOGIC
+        const btnActionScramble = document.getElementById('btn-action-scramble');
+        const scrambleInputField = document.getElementById('scramble-input-field');
+        const btnScrambleSubmit = document.getElementById('btn-scramble-submit');
+        const scrambleCorrection = document.getElementById('scramble-correction');
+
+        btnActionScramble.addEventListener('click', () => {
+            playClickSound();
+            if(btnActionScramble.innerText === "Kembali Ke Beranda Game") {
+                resetToGameHome(2);
+            } else {
+                startScrambleGame();
+            }
+        });
+
+        function startScrambleGame() {
+            scrambleIndex = 0;
+            scrambleScore = 0;
+            btnActionScramble.classList.add('hidden');
+            scrambleInputField.classList.remove('hidden');
+            btnScrambleSubmit.classList.remove('hidden');
+            scrambleCorrection.classList.add('hidden');
+            document.getElementById('scramble-score').classList.add('hidden');
+            loadScrambleQuestion();
+        }
+
+        function fisherYatesScramble(word) {
+            let letters = word.split('');
+            for (let i = letters.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [letters[i], letters[j]] = [letters[j], letters[i]];
+            }
+            return letters.join('');
+        }
+
+        function loadScrambleQuestion() {
+            scrambleInputField.value = '';
+            scrambleInputField.disabled = false;
+            btnScrambleSubmit.disabled = false;
+            scrambleCorrection.classList.add('hidden');
+            const sData = scrambleData[scrambleIndex];
+            document.getElementById('scramble-hint').innerText = `Petunjuk: ${sData.hint}`;
+            document.getElementById('scramble-word').innerText = fisherYatesScramble(sData.word);
+            document.getElementById('scramble-nav').classList.add('hidden');
+        }
+
+        btnScrambleSubmit.addEventListener('click', () => {
+            const userAns = scrambleInputField.value.toUpperCase().trim();
+            const originalWord = scrambleData[scrambleIndex].word;
+            scrambleInputField.disabled = true;
+            btnScrambleSubmit.disabled = true;
+            scrambleCorrection.classList.remove('hidden');
+
+            if (userAns === originalWord) {
+                scrambleScore += 50;
+                sndCorrect.currentTime = 0;
+                sndCorrect.play().catch(e => {});
+                scrambleCorrection.innerHTML = `<span style="color:var(--success); font-weight:bold;">BENAR! (+50 Points)</span>`;
+            } else {
+                sndWrong.currentTime = 0;
+                sndWrong.play().catch(e => {});
+                scrambleCorrection.innerHTML = `<span style="color:var(--danger); font-weight:bold;">SALAH! Koreksi: ${originalWord}</span>`;
+            }
+            document.getElementById('scramble-nav').classList.remove('hidden');
+            document.getElementById('btn-scramble-back').classList.add('hidden');
+            document.getElementById('btn-scramble-next').innerText = scrambleIndex === scrambleData.length - 1 ? "Lihat Hasil" : "Lanjut";
+        });
+
+        document.getElementById('btn-scramble-next').addEventListener('click', () => {
+            playClickSound();
+            if (scrambleIndex < scrambleData.length - 1) {
+                scrambleIndex++;
+                loadScrambleQuestion();
+            } else {
+                sndVictory.currentTime = 0;
+                sndVictory.play().catch(e => {});
+                document.getElementById('scramble-word').innerText = "FINISH";
+                scrambleInputField.classList.add('hidden');
+                btnScrambleSubmit.classList.add('hidden');
+                scrambleCorrection.classList.add('hidden');
+                document.getElementById('scramble-nav').classList.add('hidden');
+                document.getElementById('scramble-score').classList.remove('hidden');
+                document.getElementById('scramble-score-val').innerText = scrambleScore;
+                
+                btnActionScramble.innerText = "Kembali Ke Beranda Game";
+                btnActionScramble.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+
+</html>
